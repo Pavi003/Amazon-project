@@ -1,4 +1,4 @@
-import { cart, removeFromCart} from "../data/cart.js";
+import { cart, removeFromCart,updateDeliveryOption} from "../data/cart.js";
 import { products } from "../data/products.js";
 import { formatCurrency } from "./utils/money.js";
 import { hello } from "https://unpkg.com/supersimpledev@1.0.1/hello.esm.js"
@@ -11,8 +11,12 @@ const deliveryDate = today.add(7,'days')
 let r = deliveryDate.format('dddd MMMM D')
 console.log(r);
 
+function renderOrdersummary(){
+
+
 
 let cartSummartHTML = ''
+
 
 cart.forEach((cartItem) => {
 
@@ -21,7 +25,10 @@ const productId = cartItem.productId;
 
 let matchingProduct;
 
+
+
 products.forEach((product) => {
+ 
     if(product.id === productId){
         matchingProduct = product
     }
@@ -31,7 +38,7 @@ const delieveryOptionId = cartItem.delieveryOptionId;
 let delieveryOption;
 
 delieveryOptions.forEach((option) => {
- 
+  
   if(option.id === delieveryOptionId){
     delieveryOption = option
   }
@@ -39,7 +46,7 @@ delieveryOptions.forEach((option) => {
 
 const today = dayjs()
 const deliveryDate = today.add(
-  delieveryOption.delieveryDays,'day'
+  delieveryOption.delieveryDays,'days'
 )
 
 const dateString = deliveryDate.format(
@@ -101,11 +108,10 @@ function delieveryOptionHTML(matchingProduct,cartItem){
     )
 
     const priceString = delieveryOption.priceCents === 0 ? 'FREE' : `$${formatCurrency(delieveryOption.priceCents)} - `
-
     const isChecked = delieveryOption.id === cartItem.delieveryOptionId;
 
    html += `
-       <div class="delivery-option">
+       <div class="delivery-option js-delivery-option" data-product-id=${matchingProduct.id} data-delivery-option-id='${delieveryOption.id}'>
                   <input type="radio"
                     ${isChecked ? 'checked':''}
                     class="delivery-option-input"
@@ -147,4 +153,16 @@ document.querySelectorAll('.js-delete-link')
    
 })
 
+document.querySelectorAll('.js-delivery-option')
+    .forEach((element) => {
+    element.addEventListener('click',() => {
+      const {productId,deliveryOptionId} = element.dataset
+      updateDeliveryOption(productId,deliveryOptionId)
+      renderOrdersummary()
+    })
+})
+
+}
+
+renderOrdersummary()
 
